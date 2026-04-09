@@ -4,9 +4,10 @@ import { PostComposer } from "@/components/PostComposer";
 import { NearbyView } from "@/components/NearbyView";
 import { AlertsView } from "@/components/AlertsView";
 import { ProfileView } from "@/components/ProfileView";
+import { usePosts } from "@/hooks/usePosts";
 import { mockPosts } from "@/data/mockPosts";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Bell, User, Home } from "lucide-react";
+import { MapPin, Bell, User, Home, Loader2 } from "lucide-react";
 
 type Tab = "feed" | "nearby" | "alerts" | "profile";
 
@@ -19,7 +20,8 @@ const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
 
 export function FeedView() {
   const [activeTab, setActiveTab] = useState<Tab>("feed");
-
+  const { data: livePosts, isLoading, isError } = usePosts();
+  const posts = livePosts && livePosts.length > 0 ? livePosts : mockPosts;
   return (
     <div className="min-h-screen">
       {/* Top Bar */}
@@ -63,7 +65,18 @@ export function FeedView() {
           {activeTab === "feed" && (
             <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
               <PostComposer />
-              {mockPosts.map((post, i) => (
+              {isLoading && (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  Loading from Directus…
+                </div>
+              )}
+              {isError && (
+                <div className="text-xs text-muted-foreground text-center py-2">
+                  Could not reach Directus — showing mock data
+                </div>
+              )}
+              {posts.map((post, i) => (
                 <PostCard key={post.id} post={post} index={i} />
               ))}
             </div>
