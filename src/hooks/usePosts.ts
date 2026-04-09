@@ -52,7 +52,7 @@ export function usePosts() {
           limit: 50,
         })
       );
-      return posts.map(directusPostToPostData);
+      return (posts as unknown as Post[]).map(directusPostToPostData);
     },
   });
 }
