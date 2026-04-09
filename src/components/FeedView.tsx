@@ -20,7 +20,8 @@ const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
 
 export function FeedView() {
   const [activeTab, setActiveTab] = useState<Tab>("feed");
-
+  const { data: livePosts, isLoading, isError } = usePosts();
+  const posts = livePosts && livePosts.length > 0 ? livePosts : mockPosts;
   return (
     <div className="min-h-screen">
       {/* Top Bar */}
