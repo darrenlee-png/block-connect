@@ -1,10 +1,25 @@
+import { useState } from "react";
 import { PostCard } from "@/components/PostCard";
 import { PostComposer } from "@/components/PostComposer";
+import { NearbyView } from "@/components/NearbyView";
+import { AlertsView } from "@/components/AlertsView";
+import { ProfileView } from "@/components/ProfileView";
 import { mockPosts } from "@/data/mockPosts";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Bell, User, Home } from "lucide-react";
 
+type Tab = "feed" | "nearby" | "alerts" | "profile";
+
+const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
+  { id: "feed", icon: Home, label: "Feed" },
+  { id: "nearby", icon: MapPin, label: "Nearby" },
+  { id: "alerts", icon: Bell, label: "Alerts" },
+  { id: "profile", icon: User, label: "Profile" },
+];
+
 export function FeedView() {
+  const [activeTab, setActiveTab] = useState<Tab>("feed");
+
   return (
     <div className="min-h-screen">
       {/* Top Bar */}
@@ -18,41 +33,69 @@ export function FeedView() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+            <button
+              onClick={() => setActiveTab("alerts")}
+              className="relative h-9 w-9 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+            >
               <Bell className="h-4 w-4 text-muted-foreground" />
+              <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive text-[8px] text-destructive-foreground flex items-center justify-center font-bold">3</span>
             </button>
-            <button className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/15 transition-colors">
+            <button
+              onClick={() => setActiveTab("profile")}
+              className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/15 transition-colors"
+            >
               <User className="h-4 w-4 text-primary" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Feed */}
-      <main className="max-w-lg mx-auto px-4 py-4 space-y-3 pb-20">
-        <PostComposer />
-        {mockPosts.map((post, i) => (
-          <PostCard key={post.id} post={post} index={i} />
-        ))}
-      </main>
+      {/* Tab Content */}
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+          className="pb-20"
+        >
+          {activeTab === "feed" && (
+            <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+              <PostComposer />
+              {mockPosts.map((post, i) => (
+                <PostCard key={post.id} post={post} index={i} />
+              ))}
+            </div>
+          )}
+          {activeTab === "nearby" && <NearbyView />}
+          {activeTab === "alerts" && <AlertsView />}
+          {activeTab === "profile" && <ProfileView />}
+        </motion.main>
+      </AnimatePresence>
 
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 inset-x-0 border-t bg-background/90 backdrop-blur-md z-50">
         <div className="max-w-lg mx-auto flex items-center justify-around py-2">
-          {[
-            { icon: Home, label: "Feed", active: true },
-            { icon: MapPin, label: "Nearby", active: false },
-            { icon: Bell, label: "Alerts", active: false },
-            { icon: User, label: "Profile", active: false },
-          ].map((item) => (
+          {tabs.map((tab) => (
             <button
-              key={item.label}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
-                item.active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+                activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <tab.icon className="h-5 w-5" />
+              <span className="text-[10px] font-medium">{tab.label}</span>
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute -top-2 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full bg-primary"
+                />
+              )}
+              {tab.id === "alerts" && (
+                <span className="absolute -top-0.5 right-0.5 h-2 w-2 rounded-full bg-destructive" />
+              )}
             </button>
           ))}
         </div>
