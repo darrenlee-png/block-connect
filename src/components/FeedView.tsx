@@ -65,7 +65,18 @@ export function FeedView() {
           {activeTab === "feed" && (
             <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
               <PostComposer />
-              {mockPosts.map((post, i) => (
+              {isLoading && (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  Loading from Directus…
+                </div>
+              )}
+              {isError && (
+                <div className="text-xs text-muted-foreground text-center py-2">
+                  Could not reach Directus — showing mock data
+                </div>
+              )}
+              {posts.map((post, i) => (
                 <PostCard key={post.id} post={post} index={i} />
               ))}
             </div>
