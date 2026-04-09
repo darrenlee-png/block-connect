@@ -4,9 +4,10 @@ import { PostComposer } from "@/components/PostComposer";
 import { NearbyView } from "@/components/NearbyView";
 import { AlertsView } from "@/components/AlertsView";
 import { ProfileView } from "@/components/ProfileView";
+import { usePosts } from "@/hooks/usePosts";
 import { mockPosts } from "@/data/mockPosts";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Bell, User, Home } from "lucide-react";
+import { MapPin, Bell, User, Home, Loader2 } from "lucide-react";
 
 type Tab = "feed" | "nearby" | "alerts" | "profile";
 
