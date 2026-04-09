@@ -100,10 +100,22 @@ export interface DirectusSchema {
   post_images: { id: string; post_id: string; file_id: string; sort_order: number; date_created: string }[];
 }
 
-// Public client (no auth — for read-only public collections)
+// Client with static admin token for experimentation
 export const directus = createDirectus<DirectusSchema>(DIRECTUS_URL)
   .with(rest())
-  .with(authentication());
+  .with(authentication('json', { credentials: 'include' }));
+
+// Helper to get a client with the admin token pre-set
+export const directusAdmin = createDirectus<DirectusSchema>(DIRECTUS_URL)
+  .with(rest({
+    onRequest: (options) => {
+      options.headers = {
+        ...options.headers,
+        Authorization: `Bearer zsr0qiRLtYDhtdXK2qxk-pKrDUyJqkcD`,
+      };
+      return options;
+    },
+  }));
 
 // Re-export SDK helpers for convenience
 export { readItems, readItem, createItem, updateItem, deleteItem };
